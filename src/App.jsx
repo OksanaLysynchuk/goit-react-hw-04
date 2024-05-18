@@ -76,7 +76,7 @@ function App() {
   };
 
   return (
-    <header>
+    <header className={CSS.header}>
       <SearchBar onSubmit={handleSearchSubmit} />
       <ImageGallery
         images={images}
