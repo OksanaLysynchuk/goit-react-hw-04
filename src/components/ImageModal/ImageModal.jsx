@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import CSS from "./ImageModal.module.css";
 
@@ -10,6 +10,41 @@ export default function ImageModal({
   imageUrl,
   imageAlt,
 }) {
+  const [modalStyle, setModalStyle] = useState({
+    content: {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      transform: "translate(-50%, -50%)",
+    },
+  });
+
+  useEffect(() => {
+    const updateModalStyle = () => {
+      const img = new Image();
+      img.src = imageUrl;
+      img.onload = () => {
+        const { naturalWidth, naturalHeight } = img;
+
+        setModalStyle({
+          content: {
+            ...modalStyle.content,
+            width: naturalWidth,
+            height: naturalHeight,
+            marginTop: "20px",
+            maxWidth: "80vw",
+            maxHeight: "80vh",
+          },
+        });
+      };
+    };
+
+    if (isOpen) {
+      updateModalStyle();
+    }
+  }, [isOpen, imageUrl, modalStyle.content]);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -27,14 +62,12 @@ export default function ImageModal({
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
+      style={modalStyle}
       className={CSS.modalWindow}
+      overlayClassName={CSS.overlay}
     >
-      <div onClick={onRequestClose} style={{ position: "relative" }}>
-        <img
-          src={imageUrl}
-          alt={imageAlt}
-          style={{ width: "100%", height: "auto" }}
-        />
+      <div className={CSS.imageContainer} onClick={onRequestClose}>
+        <img src={imageUrl} alt={imageAlt} className={CSS.image} />
       </div>
     </Modal>
   );

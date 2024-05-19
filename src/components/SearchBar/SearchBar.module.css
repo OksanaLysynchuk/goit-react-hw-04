@@ -52,6 +52,14 @@
   padding: 0;
 }
 
+.submitting {
+  top: calc(50% + 10px);
+}
+
 .icon {
   font-size: 18px;
+}
+
+.btn:focus {
+  outline: none;
 }

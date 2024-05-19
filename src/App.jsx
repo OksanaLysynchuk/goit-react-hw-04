@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-
 import axios from "axios";
 import SearchBar from "./components/SearchBar/SearchBar.jsx";
 import ImageGallery from "./components/ImageGallery/ImageGallery.jsx";
 import ImageModal from "./components/ImageModal/ImageModal.jsx";
+import Loader from "./components/Loader/Loader.jsx";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage.jsx";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn.jsx";
 import { Toaster } from "react-hot-toast";
 import "./App.css";
 
@@ -26,7 +28,7 @@ function App() {
           params: {
             query,
             page,
-            per_page: 15,
+            per_page: 16,
           },
           headers: {
             Authorization: `Client-ID yRgzzKjwsHP9IbmfLrWTVSVCGLag4qcCavdoO3LBqvk`,
@@ -42,6 +44,15 @@ function App() {
       }));
 
       setImages((prevImages) => [...prevImages, ...newImages]);
+
+      if (page > 1) {
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth",
+          });
+        }, 100);
+      }
     } catch (err) {
       setError("Failed to load images.");
     } finally {
@@ -51,7 +62,6 @@ function App() {
 
   useEffect(() => {
     if (query === "") return;
-
     fetchImages(query, page);
   }, [page, query]);
 
@@ -76,23 +86,24 @@ function App() {
   };
 
   return (
-    <header className={CSS.header}>
+    <div className="app">
       <SearchBar onSubmit={handleSearchSubmit} />
-      <ImageGallery
-        images={images}
-        isLoading={isLoading}
-        error={error}
-        onLoadMore={handleLoadMore}
-        onImageClick={openModal}
-      />
-      <ImageModal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        imageUrl={selectedImage ? selectedImage.regularUrl : ""}
-        imageAlt={selectedImage ? selectedImage.alt : ""}
-      />
+      {error && <ErrorMessage message={error} />}
+      <ImageGallery images={images} onImageClick={openModal} />
+      {isLoading && <Loader />}
+      {!isLoading && images.length > 0 && (
+        <LoadMoreBtn onClick={handleLoadMore} />
+      )}
+      {modalIsOpen && (
+        <ImageModal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          imageUrl={selectedImage ? selectedImage.regularUrl : ""}
+          imageAlt={selectedImage ? selectedImage.alt : ""}
+        />
+      )}
       <Toaster />
-    </header>
+    </div>
   );
 }
 

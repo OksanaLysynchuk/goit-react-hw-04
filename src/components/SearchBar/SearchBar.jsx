@@ -5,14 +5,20 @@ import CSS from "./SearchBar.module.css";
 
 export default function SearchBar({ onSubmit }) {
   const [inputValue, setInputValue] = useState("");
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (inputValue.trim() === "") {
       toast.error("Please enter your search");
       return;
     }
-    onSubmit(inputValue);
+
+    setIsSubmitting(true);
+    await onSubmit(inputValue);
+    setIsSubmitting(false);
   };
+
   return (
     <header className={CSS.header}>
       <Toaster />
@@ -28,7 +34,10 @@ export default function SearchBar({ onSubmit }) {
             onChange={(e) => setInputValue(e.target.value)}
             className={CSS.input}
           />
-          <button type="submit" className={CSS.btn}>
+          <button
+            type="submit"
+            className={`${CSS.btn} ${isSubmitting ? CSS.submitting : ""}`}
+          >
             <IoIosSearch className={CSS.icon} />
           </button>
         </div>
